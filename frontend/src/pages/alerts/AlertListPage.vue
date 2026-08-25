@@ -1,78 +1,70 @@
 <template>
   <div>
-    <h2>报警中心</h2>
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="loading">加载中…</p>
-    <table v-else>
-      <thead>
-        <tr><th>ID</th><th>标题</th><th>级别</th><th>状态</th><th>环境</th><th>服务</th><th>操作</th></tr>
-      </thead>
-      <tbody>
-        <tr v-for="alert in alerts" :key="alert.id">
-          <td>{{ alert.id }}</td>
-          <td>{{ alert.title }}</td>
-          <td>{{ alert.level }}</td>
-          <td>{{ alert.status }}</td>
-          <td>{{ alert.environment }}</td>
-          <td>{{ alert.service }}</td>
-          <td class="actions">
-            <button @click="ack(alert)" :disabled="alert.status !== 'ALERTING' || busy">处理中(ACK)</button>
-            <button @click="resolve(alert)" :disabled="alert.status === 'RESOLVED' || busy">恢复</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="page-header"><h1 class="page-title">报警中心</h1></div>
+    <el-alert v-if="state.error.value" type="error" :title="state.error.value" show-icon>
+      <el-button link type="primary" @click="state.reload()">重试</el-button>
+    </el-alert>
+
+    <el-table v-loading="state.loading.value" :data="alerts" border>
+      <template #empty><el-empty v-if="state.empty" description="当前无报警 🎉" /></template>
+      <el-table-column prop="id" label="ID" width="70" />
+      <el-table-column prop="title" label="标题" min-width="220" show-overflow-tooltip />
+      <el-table-column label="级别" width="100">
+        <template #default="{ row }">
+          <el-tag :type="row.level === 'CRITICAL' ? 'danger' : row.level === 'WARN' ? 'warning' : 'info'" size="small">
+            {{ row.level }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" width="110">
+        <template #default="{ row }"><StatusTag :status="row.status" /></template>
+      </el-table-column>
+      <el-table-column prop="count" label="次数" width="80" />
+      <el-table-column prop="escalationLevel" label="升级级别" width="90" />
+      <el-table-column prop="environment" label="环境" width="90" />
+      <el-table-column prop="service" label="服务" width="130" />
+      <el-table-column label="操作" width="160">
+        <template #default="{ row }">
+          <el-button size="small" type="warning" :disabled="row.status !== 'ALERTING'" @click="ack(row)">ACK</el-button>
+          <el-button size="small" type="success" :disabled="row.status === 'RESOLVED'" @click="resolve(row)">恢复</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { api } from '../../api/client'
+import { computed } from 'vue'
+import { ElMessage } from 'element-plus'
+import { alertApi } from '../../api/alert'
+import { useAsync } from '../../hooks/useAsync'
+import { usePolling } from '../../hooks/usePolling'
+import type { Alert } from '../../types/alert'
+import StatusTag from '../../components/status-tag/StatusTag.vue'
 
-interface Alert {
-  id: number
-  title: string
-  level: string
-  status: string
-  environment: string | null
-  service: string | null
-}
+const state = useAsync<Alert[]>(() => alertApi.list())
+const alerts = computed(() => state.data.value ?? [])
 
-const alerts = ref<Alert[]>([])
-const loading = ref(true)
-const error = ref('')
-const busy = ref(false)
+// 报警实时性：5s 轮询
+usePolling(() => state.reload())
 
-async function load() {
+async function ack(alert: Alert): Promise<void> {
   try {
-    alerts.value = await api.get<Alert[]>('/api/alerts')
+    await alertApi.ack(alert.id)
+    ElMessage.success('已 ACK：停止普通重复通知（超时未恢复仍会升级）')
+    await state.reload()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
-  } finally {
-    loading.value = false
+    ElMessage.error(e instanceof Error ? e.message : String(e))
   }
 }
 
-async function ack(alert: Alert) {
-  busy.value = true
-  try { await api.post(`/api/alerts/${alert.id}/ack`); await load() }
-  catch (e) { error.value = e instanceof Error ? e.message : String(e) }
-  finally { busy.value = false }
+async function resolve(alert: Alert): Promise<void> {
+  try {
+    await alertApi.resolve(alert.id)
+    ElMessage.success('已标记恢复')
+    await state.reload()
+  } catch (e) {
+    ElMessage.error(e instanceof Error ? e.message : String(e))
+  }
 }
-
-async function resolve(alert: Alert) {
-  busy.value = true
-  try { await api.post(`/api/alerts/${alert.id}/resolve`); await load() }
-  catch (e) { error.value = e instanceof Error ? e.message : String(e) }
-  finally { busy.value = false }
-}
-
-onMounted(load)
 </script>
-
-<style scoped>
-.actions button { margin-right: 4px; }
-.error { color: #c00; }
-table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
-</style>

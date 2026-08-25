@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — 发布管理与统一报警平台总体架构
 
 > 版本：v1.0（Phase 0）
-> 配套：`agent.md`、`doc/发布管理与统一报警平台——AI Coding 技术设计与实现规范.md`
+> 配套：`AGENTS.md`（含原 agent.md 全部内容）、`doc/发布管理与统一报警平台——AI Coding 技术设计与实现规范.md`
 
 ## 1. 架构风格
 
@@ -105,7 +105,7 @@ Micrometer + Prometheus 指标：release_total、release_success_total、release
 
 ## 8. 前端架构
 
-Vue 3 + TS Strict + Pinia + Vue Router + Element Plus；目录按 agent.md §十二（app/layouts/pages/features/components/api/hooks/types/utils/styles）。发布详情用 Timeline 组件逐层展开（Jenkins/Deployment/Pod/Health/Version/日志）；数据刷新先 Polling（5s）后升级 SSE。
+Vue 3 + TS Strict + Pinia + Vue Router + Element Plus；目录按 AGENTS.md §十一（app/layouts/pages/features/components/api/hooks/types/utils/styles）。发布详情用 Timeline 组件逐层展开（Jenkins/Deployment/Pod/Health/Version/日志）；数据刷新先 Polling（5s）后升级 SSE。
 
 ## 9. 关键 ADR 索引
 

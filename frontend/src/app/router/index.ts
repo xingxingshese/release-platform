@@ -5,9 +5,31 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/login', name: 'login', component: () => import('../../pages/auth/LoginPage.vue') },
-    { path: '/', name: 'dashboard', component: () => import('../../pages/dashboard/DashboardPage.vue') },
-    { path: '/releases', name: 'releases', component: () => import('../../pages/releases/ReleaseListPage.vue') },
-    { path: '/alerts', name: 'alerts', component: () => import('../../pages/alerts/AlertListPage.vue') }
+    {
+      path: '/',
+      component: () => import('../../layouts/MainLayout.vue'),
+      children: [
+        { path: '', name: 'dashboard', component: () => import('../../pages/dashboard/DashboardPage.vue') },
+        { path: 'releases', name: 'releases', component: () => import('../../pages/releases/ReleaseListPage.vue') },
+        {
+          path: 'releases/:id',
+          name: 'release-detail',
+          component: () => import('../../pages/releases/ReleaseDetailPage.vue')
+        },
+        { path: 'projects', name: 'projects', component: () => import('../../pages/projects/ProjectListPage.vue') },
+        {
+          path: 'requirements',
+          name: 'requirements',
+          component: () => import('../../pages/requirements/RequirementListPage.vue')
+        },
+        { path: 'alerts', name: 'alerts', component: () => import('../../pages/alerts/AlertListPage.vue') },
+        {
+          path: 'admin/configs',
+          name: 'admin-configs',
+          component: () => import('../../pages/admin/ConfigCenterPage.vue')
+        }
+      ]
+    }
   ]
 })
 

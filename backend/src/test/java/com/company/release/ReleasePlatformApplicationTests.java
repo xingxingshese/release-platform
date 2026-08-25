@@ -95,6 +95,33 @@ class ReleasePlatformApplicationTests {
             return org.mockito.Mockito.mock(com.company.release.alert.repository.AlertRepository.class);
         }
 
+        // ---- Phase 11~18 新增模块依赖（JPA 关闭时以 Mock 供上下文加载）----
+
+        @org.springframework.context.annotation.Bean
+        com.company.release.admin.ConfigVersionRepository configVersionRepository() {
+            return org.mockito.Mockito.mock(com.company.release.admin.ConfigVersionRepository.class);
+        }
+
+        @org.springframework.context.annotation.Bean
+        com.company.release.audit.OperationLogRepository operationLogRepository() {
+            return org.mockito.Mockito.mock(com.company.release.audit.OperationLogRepository.class);
+        }
+
+        @org.springframework.context.annotation.Bean
+        com.company.release.notification.NotificationRuleRepository notificationRuleRepository() {
+            return org.mockito.Mockito.mock(com.company.release.notification.NotificationRuleRepository.class);
+        }
+
+        @org.springframework.context.annotation.Bean
+        com.company.release.notification.NotificationRecordRepository notificationRecordRepository() {
+            return org.mockito.Mockito.mock(com.company.release.notification.NotificationRecordRepository.class);
+        }
+
+        @org.springframework.context.annotation.Bean
+        com.company.release.deployment.adapter.ReleaseDeploymentNodeRepository releaseDeploymentNodeRepository() {
+            return org.mockito.Mockito.mock(com.company.release.deployment.adapter.ReleaseDeploymentNodeRepository.class);
+        }
+
         @org.springframework.context.annotation.Primary
         @org.springframework.context.annotation.Bean
         com.company.release.requirement.application.RequirementService requirementService() {

@@ -14,30 +14,30 @@
 | CI/CD 配置（Jenkinsfile、GitHub Actions） | 无 |
 | Docker / K8s / Helm 清单 | 无 |
 | 已有测试 | 无 |
-| 已有规范文档 | `doc/发布管理与统一报警平台——AI Coding 技术设计与实现规范.md`、`agent.md` |
+| 已有规范文档 | `AGENTS.md`（含原 agent.md 全部内容）、`doc/发布管理与统一报警平台——AI Coding 技术设计与实现规范.md` |
 
 ## 2. 结论
 
 - **绿地项目（Greenfield）**：不存在已有技术栈约束，可按规范推荐的默认技术栈执行。
-- 需求基线以《技术设计与实现规范》为准，`agent.md` 为最高优先级工作规则。
+- 需求基线以《技术设计与实现规范》为准，`AGENTS.md`（已整合原 agent.md）为最高优先级工作规则。
 - 无历史数据库，可直接采用 Flyway V1 起步的版本化 Migration。
 
 ## 3. 确定的技术栈
 
 | 层 | 选型 | 依据 |
 |---|---|---|
-| 语言/JDK | Java 17 + Spring Boot 3.x | agent.md 头部指定 |
+| 语言/JDK | Java 17 + Spring Boot 3.x | AGENTS.md §一/十 指定 |
 | ORM | Spring Data JPA + Flyway | 规范 §9、§69.24 |
-| 数据库 | MySQL 8 | agent.md 指定 |
+| 数据库 | MySQL 8 | AGENTS.md §十 指定 |
 | 缓存/锁 | Redis | 去重、分布式锁、幂等（规范 §53） |
-| MQ | RocketMQ | agent.md 指定；事件驱动通知/审计 |
+| MQ | RocketMQ | AGENTS.md §十 指定；事件驱动通知/审计 |
 | 安全 | Spring Security + JWT + RBAC | 规范 §56 |
 | API 文档 | springdoc-openapi | 规范 §29 |
-| 测试 | JUnit 5 + Mockito + Testcontainers + WireMock | agent.md §十九/§二十 |
-| 前端 | Vue 3 + TypeScript(Strict) + Vite + Pinia + Element Plus + ECharts | agent.md 头部、§三十 |
+| 测试 | JUnit 5 + Mockito + Testcontainers + WireMock | AGENTS.md §十五 |
+| 前端 | Vue 3 + TypeScript(Strict) + Vite + Pinia + Element Plus + ECharts | AGENTS.md §十/二十二 |
 | 实时推送 | 先 Polling，后 SSE/WebSocket | 规范 §30 允许降级 |
 | 构建 | Maven（后端）、pnpm（前端） | — |
-| 部署 | Docker Compose（dev/test）→ Helm/K8s（pre/prod） | agent.md §十四 |
+| 部署 | Docker Compose（dev/test）→ Helm/K8s（pre/prod） | AGENTS.md §十一 |
 
 ## 4. 仓库策略
 

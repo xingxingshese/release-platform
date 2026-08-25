@@ -39,7 +39,7 @@ services:
   rocketmq-broker:
     image: apache/rocketmq:5.3.1
     container_name: release-rocketmq-broker
-    command: sh mqbroker -n rocketmq-namesrv:9876 -c /home/rocketmq/conf/broker.conf
+    command: sh mqbroker -n rocketmq-namesrv:9876 -c /home/rocketmq/rocketmq-5.3.1/conf/broker.conf
     depends_on:
       - rocketmq-namesrv
     ports:

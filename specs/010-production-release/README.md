@@ -1,4 +1,17 @@
-# 010-production-release
+# 010-production-release · 生产发布与确认
 
-状态：⬜ 待 Phase 12 填充
-范围：生产发布权限校验（独立权限点）；PROD_DEPLOYING→PROD_DEPLOY_SUCCESS→WAIT_PROD_CONFIRM→确认→COMPLETED；确认角色/超时/管理员代确认配置化（规范 §18/§39）。ADR-003/010。
+> 生产发布独立权限点 release:prod:execute；PROD_DEPLOY_SUCCESS→WAIT_PROD_CONFIRM→confirm→COMPLETED；确认权限 release:prod:confirm、重复确认幂等、超时/代确认配置化。
+
+## 文档导航（SDD 七件套）
+
+- [requirements.md](requirements.md) — 用户故事/业务规则/前后置/异常/权限/状态/验收标准
+- [design.md](design.md) — 设计要点
+- [api.md](api.md) — API Contract
+- [data-model.md](data-model.md) — 数据模型
+- [test-plan.md](test-plan.md) — 测试计划（分层）
+- [acceptance.md](acceptance.md) — 验收清单
+
+## 相关 ADR
+
+ADR-002 modular-monolith · ADR-003 release-state-machine · ADR-004 jenkins-adapter ·
+ADR-005 deployment-adapter · ADR-007 alert-deduplication · ADR-008 config-snapshot · ADR-010 idempotency（按相关性取用）

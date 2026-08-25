@@ -2,6 +2,7 @@ package com.company.release.release.application;
 
 import com.company.release.common.exception.BusinessException;
 import com.company.release.common.exception.ErrorCode;
+import com.company.release.common.observability.ReleaseMetrics;
 import com.company.release.deployment.verifier.ReleaseSuccessEvaluator;
 import com.company.release.git.api.GitProvider;
 import com.company.release.git.application.GitMergeService;
@@ -32,6 +33,7 @@ public class ReleaseOrchestrator {
     private final JenkinsProvider jenkinsProvider;
     private final ReleaseSuccessEvaluator successEvaluator;
     private final com.company.release.deployment.verifier.KubernetesDeploymentVerifier k8sVerifier;
+    private final ReleaseMetrics metrics;
 
     public ReleaseOrchestrator(ReleasePlanRepository planRepository,
                                ReleaseTaskRepository taskRepository,
@@ -40,6 +42,19 @@ public class ReleaseOrchestrator {
                                JenkinsProvider jenkinsProvider,
                                ReleaseSuccessEvaluator successEvaluator,
                                com.company.release.deployment.verifier.KubernetesDeploymentVerifier k8sVerifier) {
+        this(planRepository, taskRepository, planServiceRepository, gitMergeService,
+                jenkinsProvider, successEvaluator, k8sVerifier, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public ReleaseOrchestrator(ReleasePlanRepository planRepository,
+                               ReleaseTaskRepository taskRepository,
+                               PlanServiceRepository planServiceRepository,
+                               GitMergeService gitMergeService,
+                               JenkinsProvider jenkinsProvider,
+                               ReleaseSuccessEvaluator successEvaluator,
+                               com.company.release.deployment.verifier.KubernetesDeploymentVerifier k8sVerifier,
+                               ReleaseMetrics metrics) {
         this.planRepository = planRepository;
         this.taskRepository = taskRepository;
         this.planServiceRepository = planServiceRepository;
@@ -47,6 +62,7 @@ public class ReleaseOrchestrator {
         this.jenkinsProvider = jenkinsProvider;
         this.successEvaluator = successEvaluator;
         this.k8sVerifier = k8sVerifier;
+        this.metrics = metrics;
     }
 
     /**
@@ -139,6 +155,9 @@ public class ReleaseOrchestrator {
             task.setStatus("FAILED");
             task.setErrorMessage("failed checks: " + evaluation.failedChecks());
             task.setFinishedAt(java.time.LocalDateTime.now());
+        }
+        if (metrics != null) {
+            metrics.releaseFinished(evaluation.success());
         }
         taskRepository.save(task);
 

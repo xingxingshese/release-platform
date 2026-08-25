@@ -31,13 +31,18 @@ public class AlertIngestService {
     private final Supplier<LocalDateTime> clock;
     private final int repeatIntervalMinutes;
 
+    /** 可选指标（测试构造器不注入）。 */
+    private com.company.release.common.observability.ReleaseMetrics metrics;
+
     @org.springframework.beans.factory.annotation.Autowired
     public AlertIngestService(AlertRepository alertRepository,
                               AlertFingerprintBuilder fingerprintBuilder,
                               List<NotificationProvider> notificationProviders,
+                              org.springframework.beans.factory.ObjectProvider<com.company.release.common.observability.ReleaseMetrics> metricsProvider,
                               @Value("${alert.repeat-interval-minutes:5}") int repeatIntervalMinutes) {
         this(alertRepository, fingerprintBuilder, notificationProviders,
                 LocalDateTime::now, repeatIntervalMinutes);
+        this.metrics = metricsProvider.getIfAvailable();
     }
 
     /** 测试构造器：注入时钟。 */
@@ -82,6 +87,9 @@ public class AlertIngestService {
         a.setLastOccurredAt(now);
         a.setStatus("ALERTING");
         var saved = alertRepository.save(a);
+        if (metrics != null) {
+            metrics.alertIngested();
+        }
         notify(saved); // 首次立即通知
         return saved;
     }

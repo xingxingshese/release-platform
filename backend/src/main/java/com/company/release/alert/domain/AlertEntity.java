@@ -47,7 +47,7 @@ public class AlertEntity {
     @Column(columnDefinition = "JSON")
     private String labels;
 
-    @Column(nullable = false, length = 64)
+    @Column(nullable = false, columnDefinition = "char(64)")
     private String fingerprint;
 
     @Column(name = "notified_repeat_count", nullable = false)
