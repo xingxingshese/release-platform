@@ -1,0 +1,4 @@
+# 015-rbac
+
+状态：⬜ 待 Phase 2 填充
+范围：用户/角色/权限（SUPER_ADMIN/SYSTEM_ADMIN/PROJECT_ADMIN/RELEASE_OWNER/DEVELOPER/TESTER/PRODUCT/ALERT_OWNER/VIEWER）、JWT 认证、生产发布独立权限点、项目管理员仅限本项目（规范 §56/§57）。

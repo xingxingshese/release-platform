@@ -1,0 +1,40 @@
+-- V2: IAM / RBAC（规范 §56/§57）
+CREATE TABLE app_user (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(64) NOT NULL,
+    password_hash VARCHAR(128) NOT NULL,
+    display_name VARCHAR(64) NULL,
+    email VARCHAR(128) NULL,
+    enabled TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户';
+
+CREATE TABLE role (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(64) NOT NULL,
+    name VARCHAR(64) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_role_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色';
+
+CREATE TABLE permission (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(128) NOT NULL,
+    name VARCHAR(128) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_permission_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限点';
+
+CREATE TABLE user_role (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, role_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE role_permission (
+    role_id BIGINT NOT NULL,
+    permission_id BIGINT NOT NULL,
+    PRIMARY KEY (role_id, permission_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -1,0 +1,51 @@
+version: "3.9"
+
+# 开发环境基础设施：MySQL / Redis / RocketMQ
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: release-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: release_platform
+      MYSQL_USER: release
+      MYSQL_PASSWORD: release123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: release-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.1
+    container_name: release-rocketmq-namesrv
+    command: sh mqnamesrv
+    ports:
+      - "9876:9876"
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.1
+    container_name: release-rocketmq-broker
+    command: sh mqbroker -n rocketmq-namesrv:9876 -c /home/rocketmq/conf/broker.conf
+    depends_on:
+      - rocketmq-namesrv
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+
+volumes:
+  mysql-data:
+  redis-data:

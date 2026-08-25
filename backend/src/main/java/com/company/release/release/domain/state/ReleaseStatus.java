@@ -1,0 +1,27 @@
+package com.company.release.release.domain.state;
+
+/**
+ * 发布计划状态全集（规范 §8 / §44）。
+ */
+public enum ReleaseStatus {
+    DRAFT,
+    READY,
+    TEST_MERGING,
+    WAIT_CONFLICT_RESOLVE,
+    TEST_DEPLOYING,
+    TEST_DEPLOY_SUCCESS,
+    WAIT_TEST_ACCEPT,
+    TEST_REJECTED,
+    TEST_ACCEPTED,
+    RELEASE_BRANCH_CREATING,
+    RELEASE_BRANCH_CREATED,
+    PRE_DEPLOYING,
+    PRE_DEPLOY_SUCCESS,
+    PROD_DEPLOYING,
+    PROD_DEPLOY_SUCCESS,
+    WAIT_PROD_CONFIRM,
+    COMPLETED,
+    FAILED,
+    TIMEOUT,
+    CANCELLED
+}

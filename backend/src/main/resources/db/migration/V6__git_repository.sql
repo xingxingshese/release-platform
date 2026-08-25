@@ -1,0 +1,24 @@
+-- V6: Git 仓库（规范 §7）
+CREATE TABLE git_repository (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT NOT NULL,
+    name VARCHAR(128) NOT NULL,
+    url VARCHAR(512) NOT NULL,
+    provider_type VARCHAR(32) NOT NULL COMMENT 'GITLAB/GITHUB/GITEE/CODEUP/CUSTOM',
+    credential_id BIGINT NULL,
+    default_branch VARCHAR(128) NOT NULL DEFAULT 'master',
+    enabled TINYINT(1) NOT NULL DEFAULT 1,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_repo_project_name (project_id, name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE git_credential (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL,
+    username VARCHAR(128) NULL,
+    secret_encrypted VARBINARY(1024) NOT NULL COMMENT '加密存储，禁止明文',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_credential_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
