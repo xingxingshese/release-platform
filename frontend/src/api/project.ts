@@ -1,19 +1,54 @@
-/** 需求域 API（spec 002 契约对齐）。 */
-import { api } from './client'
-import type { Project } from '../types/project'
+import { http } from "@/utils/http";
+import type {
+  ApiResponse,
+  Project,
+  ProjectMember,
+  ProjectService,
+  ProjectType
+} from "./types";
 
-export interface Requirement {
-  id: number
-  projectId: number
-  title: string
-  source: 'MANUAL' | 'YUNXIAO'
-  externalKey: string | null
-  status: string
-}
+/** POST /api/projects */
+export const createProject = (data: {
+  code: string;
+  name: string;
+  description?: string;
+  projectType: ProjectType;
+}) => {
+  return http.request<ApiResponse<Project>>("post", "/api/projects", { data });
+};
 
-export const projectApi = {
-  list: () => api.get<Project[]>('/api/projects'),
-  create: (body: { name: string; code: string; projectType: Project['projectType'] }) =>
-    api.post<Project>('/api/projects', body),
-  requirements: (projectId: number) => api.get<Requirement[]>(`/api/requirements?projectId=${projectId}`)
-}
+/** GET /api/projects */
+export const listProjects = () => {
+  return http.request<Project[]>("get", "/api/projects");
+};
+
+/** GET /api/projects/{id} */
+export const getProject = (id: number) => {
+  return http.request<Project>("get", `/api/projects/${id}`);
+};
+
+/** POST /api/projects/{id}/members */
+export const addProjectMember = (
+  id: number,
+  data: { userId: number; role: string }
+) => {
+  return http.request<void>("post", `/api/projects/${id}/members`, { data });
+};
+
+/** GET /api/projects/{id}/members */
+export const listProjectMembers = (id: number) => {
+  return http.request<ProjectMember[]>(`get`, `/api/projects/${id}/members`);
+};
+
+/** POST /api/projects/{id}/services */
+export const addProjectService = (
+  id: number,
+  data: { code: string; name: string; type: string }
+) => {
+  return http.request<void>("post", `/api/projects/${id}/services`, { data });
+};
+
+/** GET /api/projects/{id}/services */
+export const listProjectServices = (id: number) => {
+  return http.request<ProjectService[]>("get", `/api/projects/${id}/services`);
+};

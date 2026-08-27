@@ -1,6 +1,13 @@
 # IMPLEMENTATION_PLAN.md — 实施计划
 
-> **策略调整（2026-08-25，用户指令）**：先实现后端全部逻辑（保持 TDD），再实现前端逻辑；前端暂不使用 TDD。前端骨架已建，`pnpm install` 因构建脚本审批待处理（`pnpm approve-builds` 或已在 package.json 配置 onlyBuiltDependencies），延后验证。
+> **策略调整（2026-08-25，用户指令）**：先实现后端全部逻辑（保持 TDD），再实现前端逻辑；前端暂不使用 TDD。前端已基于成熟模板 **pure-admin-thin**（Vue3+TS+Pinia+Vite+Element Plus，MIT）重建并完成业务页面对接。
+
+> **前端重建完成（2026-08-25 第三轮）**：原 frontend 源码丢失仅剩 node_modules，改用 pure-admin-thin v6.2.0 作为基座。已完成：
+> - 工程适配：package.json 更名、移除 husky/mock(@faker-js)、vite proxy `/api→localhost:8080`；
+> - 认证对接：POST /api/auth/login（admin/admin123 引导账号）、JWT Bearer、ApiResponse 统一解包、401/403(非 PERMISSION_DENIED) 自动登出、无 refresh-token（后端 TTL 8h）；
+> - 业务页面：Dashboard(统计卡片+最近发布+活跃报警)、发布列表(状态驱动操作按钮)、发布详情(Timeline+5s轮询+冲突提示)、项目列表(成员/服务抽屉)、需求管理(手动创建+云效导入幂等)、报警中心(三态筛选+ACK/恢复+10s轮询)、管理员配置中心(版本历史+字段级diff)；
+> - 验证：`pnpm build`(2.25MB) / `pnpm typecheck` / `pnpm lint:eslint(max-warnings=0)` 全部通过；dev 冒烟：登录链路经代理返回 JWT 成功；
+> - 已知缺口：后端缺 `GET /release-plans/{id}/tasks`、deployment node 查询接口，Timeline 节点明细暂以计划级状态渲染；后端无 Dashboard 统计接口，Dashboard 用现有列表接口聚合。
 
 > 规则：每个 Phase 遵循 Specification → Test Plan → RED → GREEN → REFACTOR → Integration Test → Review → Documentation → DoD。
 > 状态：⬜ 未开始 / 🔄 进行中 / ✅ 完成

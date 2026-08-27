@@ -1,16 +1,41 @@
-/** 管理员配置中心 API（spec 016 契约对齐）。 */
-import { api } from './client'
-import type { ConfigDiffItem, ConfigVersionSummary, Project } from '../types/project'
+import { http } from "@/utils/http";
+import type { ConfigDiffItem, ConfigVersionItem } from "./types";
 
-export const adminApi = {
-  configVersions: (type: string, key: string) =>
-    api.get<ConfigVersionSummary[]>(`/api/admin/configs/${type}/${key}/versions`),
+const base = (type: string, key: string) =>
+  `/api/admin/configs/${type}/${encodeURIComponent(key)}`;
 
-  saveConfig: (type: string, key: string, content: string, reason: string) =>
-    api.post<{ version: number }>(`/api/admin/configs/${type}/${key}/versions`, { content, reason }),
+/**
+ * POST /api/admin/configs/{type}/{key}/versions
+ * 保存配置新版本（版本号单调递增；任何影响发布的配置变更必须创建新版本）
+ */
+export const saveConfigVersion = (
+  type: string,
+  key: string,
+  data: { content: string; reason?: string }
+) => {
+  return http.request<{ id: number; version: number; changedBy: number }>(
+    "post",
+    `${base(type, key)}/versions`,
+    { data }
+  );
+};
 
-  configDiff: (type: string, key: string, v1: number, v2: number) =>
-    api.get<ConfigDiffItem[]>(`/api/admin/configs/${type}/${key}/diff?v1=${v1}&v2=${v2}`),
+/** GET /api/admin/configs/{type}/{key}/versions 版本历史（新→旧） */
+export const listConfigVersions = (type: string, key: string) => {
+  return http.request<ConfigVersionItem[]>(
+    "get",
+    `${base(type, key)}/versions`
+  );
+};
 
-  projects: () => api.get<Project[]>('/api/projects')
-}
+/** GET /api/admin/configs/{type}/{key}/diff?v1&v2 字段级对比 当前值 vs 新值 */
+export const diffConfigVersions = (
+  type: string,
+  key: string,
+  v1: number,
+  v2: number
+) => {
+  return http.request<ConfigDiffItem[]>("get", `${base(type, key)}/diff`, {
+    params: { v1, v2 }
+  });
+};

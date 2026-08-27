@@ -1,12 +1,21 @@
-/** 报警域 API（spec 014 契约对齐）。 */
-import { api } from './client'
-import type { Alert } from '../types/alert'
+import { http } from "@/utils/http";
+import type { Alert } from "./types";
 
-export const alertApi = {
-  list: (projectId?: number) =>
-    api.get<Alert[]>(projectId ? `/api/alerts?projectId=${projectId}` : '/api/alerts'),
+/** GET /api/alerts?projectId= 报警列表 */
+export const listAlerts = (projectId?: number) => {
+  return http.request<Alert[]>(
+    "get",
+    "/api/alerts",
+    projectId ? { params: { projectId } } : undefined
+  );
+};
 
-  ack: (id: number) => api.post<void>(`/api/alerts/${id}/ack`),
+/** POST /api/alerts/{id}/ack 确认（ACK 后停止普通重复通知，但升级继续） */
+export const ackAlert = (id: number) => {
+  return http.request<void>("post", `/api/alerts/${id}/ack`);
+};
 
-  resolve: (id: number) => api.post<void>(`/api/alerts/${id}/resolve`)
-}
+/** POST /api/alerts/{id}/resolve 恢复 */
+export const resolveAlert = (id: number) => {
+  return http.request<void>("post", `/api/alerts/${id}/resolve`);
+};

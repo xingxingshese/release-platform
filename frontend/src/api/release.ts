@@ -1,35 +1,58 @@
-/** 发布域 API（对齐 ReleaseController / PreProdReleaseService 契约）。 */
-import { api } from './client'
-import type { DeploymentNode } from '../types/deployment'
-import type { ReleasePlan, ReleaseTask } from '../types/release'
+import { http } from "@/utils/http";
+import type { ApiResponse, ReleasePlan } from "./types";
 
-export const releaseApi = {
-  list: () => api.get<ReleasePlan[]>('/api/release-plans'),
+/** POST /api/release-plans 创建（DRAFT） */
+export const createReleasePlan = (data: {
+  projectId: number;
+  name: string;
+  versionName?: string;
+  description?: string;
+  environments?: string;
+}) => {
+  return http.request<ApiResponse<ReleasePlan>>("post", "/api/release-plans", {
+    data
+  });
+};
 
-  detail: (id: number) => api.get<ReleasePlan>(`/api/release-plans/${id}`),
+/** GET /api/release-plans */
+export const listReleasePlans = () => {
+  return http.request<ReleasePlan[]>("get", "/api/release-plans");
+};
 
-  create: (body: { projectId: number; name: string; versionName?: string }) =>
-    api.post<ReleasePlan>('/api/release-plans', body),
+/** GET /api/release-plans/{id} */
+export const getReleasePlan = (id: number) => {
+  return http.request<ReleasePlan>("get", `/api/release-plans/${id}`);
+};
 
-  ready: (id: number) => api.post<void>(`/api/release-plans/${id}/ready`),
+/** POST /api/release-plans/{id}/ready 提交就绪 DRAFT→READY */
+export const readyReleasePlan = (id: number) => {
+  return http.request<void>("post", `/api/release-plans/${id}/ready`);
+};
 
-  startTestRelease: (id: number) =>
-    api.post<ReleaseTask>(`/api/release-plans/${id}/start`),
+/** POST /api/release-plans/{id}/test-release 启动测试发布（分布式锁防重复） */
+export const startTestRelease = (id: number) => {
+  return http.request<unknown>("post", `/api/release-plans/${id}/test-release`);
+};
 
-  accept: (id: number) => api.post<void>(`/api/release-plans/${id}/acceptance`, { decision: 'ACCEPT' }),
+/** POST .../test-accept 测试验收通过 */
+export const acceptTest = (id: number) => {
+  return http.request<void>("post", `/api/release-plans/${id}/test-accept`);
+};
 
-  reject: (id: number, reason: string) =>
-    api.post<void>(`/api/release-plans/${id}/acceptance`, { decision: 'REJECT', reason }),
+/** POST .../test-reject 测试验收驳回 */
+export const rejectTest = (id: number) => {
+  return http.request<void>("post", `/api/release-plans/${id}/test-reject`);
+};
 
-  createReleaseBranch: (id: number) =>
-    api.post<void>(`/api/release-plans/${id}/release-branch`),
+/** POST .../create-release-branch 创建 Release Branch */
+export const createReleaseBranch = (id: number) => {
+  return http.request<void>(
+    "post",
+    `/api/release-plans/${id}/create-release-branch`
+  );
+};
 
-  deployPre: (id: number) => api.post<ReleaseTask>(`/api/release-plans/${id}/deploy-pre`),
-
-  deployProd: (id: number) => api.post<ReleaseTask>(`/api/release-plans/${id}/deploy-prod`),
-
-  confirm: (id: number) => api.post<void>(`/api/release-plans/${id}/confirm`),
-
-  deploymentNodes: (taskId: number) =>
-    api.get<DeploymentNode[]>(`/api/release-tasks/${taskId}/nodes`)
-}
+/** POST .../prod-confirm 生产确认 WAIT_PROD_CONFIRM→COMPLETED */
+export const confirmProduction = (id: number) => {
+  return http.request<void>("post", `/api/release-plans/${id}/prod-confirm`);
+};
